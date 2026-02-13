@@ -85,6 +85,11 @@ a:hover {
     text-decoration: underline;
 }
 
+a.logo:hover,
+a.footer-brand:hover {
+    text-decoration: none !important;
+}
+
 img {
     display: block;
     max-width: 100%;
@@ -123,11 +128,12 @@ img {
     gap: 0.5rem;
     text-decoration: none;
     color: inherit;
-    transition: filter 0.3s ease;
+    transition: text-shadow 0.3s ease, filter 0.3s ease;
 }
 
 .logo:hover {
-    filter: drop-shadow(0 0 12px var(--accent));
+    text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 40px var(--accent);
+    filter: drop-shadow(0 0 8px var(--accent));
 }
 
 .logo-icon {
@@ -629,7 +635,8 @@ img {
 }
 
 .footer-brand:hover {
-    filter: drop-shadow(0 0 12px var(--accent));
+    text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 40px var(--accent);
+    filter: drop-shadow(0 0 8px var(--accent));
 }
 
 .footer-links {
