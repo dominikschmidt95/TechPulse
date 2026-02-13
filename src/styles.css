@@ -423,10 +423,13 @@ img {
     line-height: 1.6;
 }
 
-/* --- Hidden state for filtering --- */
+/* --- Hidden state --- */
 .card[hidden],
-.featured[hidden] {
-    display: none;
+.featured[hidden],
+.news-grid[hidden],
+#featuredSlot[hidden],
+.filter-bar[hidden] {
+    display: none !important;
 }
 
 /* --- Loading State --- */
