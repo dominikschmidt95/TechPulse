@@ -133,12 +133,16 @@ img {
 
 .logo:hover {
     text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 40px var(--accent);
-    filter: drop-shadow(0 0 8px var(--accent));
 }
 
 .logo-icon {
     font-size: 1.5rem;
     filter: drop-shadow(0 0 8px var(--accent));
+    transition: filter 0.3s ease;
+}
+
+.logo:hover .logo-icon {
+    filter: drop-shadow(0 0 10px var(--accent)) drop-shadow(0 0 20px var(--accent)) drop-shadow(0 0 40px var(--accent));
 }
 
 .logo h1 {
@@ -631,12 +635,15 @@ img {
     font-weight: 700;
     text-decoration: none;
     color: inherit;
-    transition: filter 0.3s ease;
+    transition: text-shadow 0.3s ease;
 }
 
 .footer-brand:hover {
     text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 40px var(--accent);
-    filter: drop-shadow(0 0 8px var(--accent));
+}
+
+.footer-brand:hover .logo-icon {
+    filter: drop-shadow(0 0 10px var(--accent)) drop-shadow(0 0 20px var(--accent)) drop-shadow(0 0 40px var(--accent));
 }
 
 .footer-links {
