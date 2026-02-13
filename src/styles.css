@@ -121,6 +121,8 @@ img {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    text-decoration: none;
+    color: inherit;
 }
 
 .logo-icon {
@@ -616,6 +618,8 @@ img {
     gap: 0.4rem;
     font-size: 1.1rem;
     font-weight: 700;
+    text-decoration: none;
+    color: inherit;
 }
 
 .footer-links {
