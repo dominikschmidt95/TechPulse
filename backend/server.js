@@ -1,6 +1,8 @@
 const express = require('express');
 const Parser = require('rss-parser');
 const cors = require('cors');
+const { Readability } = require('@mozilla/readability');
+const { JSDOM } = require('jsdom');
 
 const app = express();
 const parser = new Parser({
@@ -118,6 +120,61 @@ async function fetchAllFeeds() {
     return cachedArticles;
 }
 
+// --- Article content extraction cache ---
+const articleCache = new Map();
+const ARTICLE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
+async function extractArticleContent(url) {
+    // Check cache
+    const cached = articleCache.get(url);
+    if (cached && Date.now() - cached.timestamp < ARTICLE_CACHE_DURATION) {
+        return cached.data;
+    }
+
+    const response = await fetch(url, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; TechPulse/1.0; +https://techpulse.local)',
+            'Accept': 'text/html,application/xhtml+xml',
+        },
+        signal: AbortSignal.timeout(15000),
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+    }
+
+    const html = await response.text();
+    const dom = new JSDOM(html, { url });
+    const reader = new Readability(dom.window.document);
+    const article = reader.parse();
+
+    if (!article || !article.content) {
+        throw new Error('Could not extract article content');
+    }
+
+    // Clean the extracted HTML
+    const cleanedContent = cleanHtmlContent(article.content);
+
+    const data = {
+        title: article.title || null,
+        content: cleanedContent,
+        excerpt: article.excerpt || null,
+        byline: article.byline || null,
+        length: article.length || 0,
+    };
+
+    // Cache the result
+    articleCache.set(url, { data, timestamp: Date.now() });
+
+    // Limit cache size to 100 entries
+    if (articleCache.size > 100) {
+        const oldest = articleCache.keys().next().value;
+        articleCache.delete(oldest);
+    }
+
+    return data;
+}
+
 // --- API Routes ---
 app.get('/api/articles', async (req, res) => {
     try {
@@ -129,8 +186,23 @@ app.get('/api/articles', async (req, res) => {
     }
 });
 
+app.get('/api/article-content', async (req, res) => {
+    const url = req.query.url;
+    if (!url) {
+        return res.status(400).json({ error: 'Missing url parameter' });
+    }
+
+    try {
+        const article = await extractArticleContent(url);
+        res.json(article);
+    } catch (err) {
+        console.error('[TechPulse] Article extraction failed for', url, ':', err.message);
+        res.status(502).json({ error: 'Could not extract article content' });
+    }
+});
+
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', cached: cachedArticles.length, lastFetch: new Date(lastFetch).toISOString() });
+    res.json({ status: 'ok', cached: cachedArticles.length, articleCache: articleCache.size, lastFetch: new Date(lastFetch).toISOString() });
 });
 
 // --- Start ---

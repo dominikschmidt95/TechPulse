@@ -123,13 +123,37 @@
     }
 
     // --- Article Detail View ---
+    function setArticleBodyLinks() {
+        var bodyLinks = articleBody.querySelectorAll('a');
+        for (var i = 0; i < bodyLinks.length; i++) {
+            bodyLinks[i].setAttribute('target', '_blank');
+            bodyLinks[i].setAttribute('rel', 'noopener');
+        }
+    }
+
+    function renderArticleBody(content, readingMin) {
+        articleBody.innerHTML = content;
+        setArticleBodyLinks();
+
+        // Update reading time if we got better content
+        var timeEl = document.querySelector('.reading-time');
+        if (timeEl) {
+            var newMin = estimateReadingTime(content);
+            if (newMin > readingMin) {
+                timeEl.innerHTML =
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
+                    newMin + ' min read';
+            }
+        }
+    }
+
     function openArticle(index) {
         var a = articles[index];
         if (!a) return;
 
-        // Calculate reading time
-        var contentForTime = a.content && a.content.trim().length > 0 ? a.content : a.description;
-        var readingMin = estimateReadingTime(contentForTime);
+        // Calculate initial reading time from RSS content
+        var rssContent = a.content && a.content.trim().length > 0 ? a.content : '';
+        var readingMin = estimateReadingTime(rssContent || a.description);
 
         // Build header
         articleHeader.innerHTML =
@@ -147,19 +171,12 @@
                 '</span>' +
             '</div>';
 
-        // Build body — use full content if available, otherwise description
-        if (a.content && a.content.trim().length > 0) {
-            articleBody.innerHTML = a.content;
-        } else {
-            articleBody.innerHTML = '<p>' + escapeHtml(a.description) + '</p>';
-        }
-
-        // Make all links in article body open in new tabs
-        var bodyLinks = articleBody.querySelectorAll('a');
-        for (var i = 0; i < bodyLinks.length; i++) {
-            bodyLinks[i].setAttribute('target', '_blank');
-            bodyLinks[i].setAttribute('rel', 'noopener');
-        }
+        // Show loading state in body while fetching full content
+        articleBody.innerHTML =
+            '<div class="article-loading">' +
+                '<div class="loading-spinner"></div>' +
+                '<p>Loading full article...</p>' +
+            '</div>';
 
         // Source link
         articleSourceLink.href = a.link;
@@ -177,6 +194,31 @@
         // Reset progress bar and scroll to top
         progressBar.style.width = '0%';
         window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Fetch full article content from the backend
+        fetch('/api/article-content?url=' + encodeURIComponent(a.link))
+            .then(function (res) {
+                if (!res.ok) throw new Error('Failed');
+                return res.json();
+            })
+            .then(function (data) {
+                if (articleView.hidden) return; // user navigated away
+                if (data.content && data.content.trim().length > 100) {
+                    renderArticleBody(data.content, readingMin);
+                } else {
+                    // Extraction returned too little, fall back to RSS content
+                    renderArticleBody(rssContent || '<p>' + escapeHtml(a.description) + '</p>', readingMin);
+                }
+            })
+            .catch(function () {
+                if (articleView.hidden) return;
+                // Fall back to RSS content on error
+                if (rssContent) {
+                    renderArticleBody(rssContent, readingMin);
+                } else {
+                    articleBody.innerHTML = '<p>' + escapeHtml(a.description) + '</p>';
+                }
+            });
     }
 
     function closeArticle() {
