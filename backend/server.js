@@ -64,6 +64,17 @@ function stripHtml(html) {
     return html.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
 }
 
+function cleanHtmlContent(html) {
+    if (!html) return '';
+    // Remove script/style tags and their content
+    var cleaned = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '');
+    // Remove tracking pixels and tiny images
+    cleaned = cleaned.replace(/<img[^>]*(width|height)\s*=\s*["']?1["']?[^>]*>/gi, '');
+    // Keep safe HTML: p, h1-h6, a, img, ul, ol, li, blockquote, em, strong, code, pre, br
+    cleaned = cleaned.replace(/<(?!\/?(?:p|h[1-6]|a|img|ul|ol|li|blockquote|em|strong|code|pre|br|figure|figcaption)\b)[^>]+>/gi, '');
+    return cleaned.trim();
+}
+
 async function fetchAllFeeds() {
     const now = Date.now();
     if (cachedArticles.length > 0 && now - lastFetch < CACHE_DURATION) {
@@ -73,16 +84,20 @@ async function fetchAllFeeds() {
     const results = await Promise.allSettled(
         FEEDS.map(async (feed) => {
             const parsed = await parser.parseURL(feed.url);
-            return parsed.items.map((item) => ({
-                title: item.title || 'Untitled',
-                description: stripHtml(item.contentSnippet || item.content || item.summary || '').slice(0, 200),
-                link: item.link || '#',
-                image: item.enclosure?.url || extractImageFromContent(item['content:encoded'] || item.content) || null,
-                date: item.isoDate || item.pubDate || new Date().toISOString(),
-                author: item.creator || item.author || item['dc:creator'] || null,
-                source: parsed.title || 'Unknown',
-                category: detectCategory(item.title, item.contentSnippet || item.content, feed.category),
-            }));
+            return parsed.items.map((item) => {
+                var fullHtml = item['content:encoded'] || item.content || item.summary || '';
+                return {
+                    title: item.title || 'Untitled',
+                    description: stripHtml(item.contentSnippet || fullHtml).slice(0, 200),
+                    content: cleanHtmlContent(fullHtml),
+                    link: item.link || '#',
+                    image: item.enclosure?.url || extractImageFromContent(fullHtml) || null,
+                    date: item.isoDate || item.pubDate || new Date().toISOString(),
+                    author: item.creator || item.author || item['dc:creator'] || null,
+                    source: parsed.title || 'Unknown',
+                    category: detectCategory(item.title, item.contentSnippet || fullHtml, feed.category),
+                };
+            });
         })
     );
 

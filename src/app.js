@@ -16,6 +16,14 @@
     var noResults = document.getElementById('noResults');
     var loadingEl = document.getElementById('loading');
     var subscribeForm = document.getElementById('subscribeForm');
+    var filterBar = document.querySelector('.filter-bar');
+
+    // Article detail view elements
+    var articleView = document.getElementById('articleView');
+    var articleHeader = document.getElementById('articleHeader');
+    var articleBody = document.getElementById('articleBody');
+    var articleSourceLink = document.getElementById('articleSourceLink');
+    var backBtn = document.getElementById('backBtn');
 
     var articles = [];
     var activeCategory = 'all';
@@ -90,31 +98,148 @@
         return div.innerHTML;
     }
 
+    // --- Reading progress bar ---
+    var progressBar = document.getElementById('readingProgress');
+
+    function updateReadingProgress() {
+        if (articleView.hidden) {
+            progressBar.style.width = '0%';
+            return;
+        }
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? Math.min((scrollTop / docHeight) * 100, 100) : 0;
+        progressBar.style.width = progress + '%';
+    }
+
+    window.addEventListener('scroll', updateReadingProgress);
+
+    // --- Reading time estimate ---
+    function estimateReadingTime(content) {
+        var text = content.replace(/<[^>]*>/g, '').trim();
+        var words = text.split(/\s+/).length;
+        var minutes = Math.max(1, Math.round(words / 220));
+        return minutes;
+    }
+
+    // --- Article Detail View ---
+    function openArticle(index) {
+        var a = articles[index];
+        if (!a) return;
+
+        // Calculate reading time
+        var contentForTime = a.content && a.content.trim().length > 0 ? a.content : a.description;
+        var readingMin = estimateReadingTime(contentForTime);
+
+        // Build header
+        articleHeader.innerHTML =
+            '<img class="article-hero" src="' + escapeHtml(getImage(a)) + '" alt="' + escapeHtml(a.title) + '"' +
+            ' onerror="this.src=\'' + PLACEHOLDER_IMAGES[a.category] + '\'">' +
+            '<span class="tag">' + escapeHtml(CATEGORY_LABELS[a.category] || a.category) + '</span>' +
+            '<h1>' + escapeHtml(a.title) + '</h1>' +
+            '<div class="meta">' +
+                (a.author ? '<span class="author">' + escapeHtml(a.author) + '</span>' : '') +
+                (a.source ? '<span class="author">' + escapeHtml(a.source) + '</span>' : '') +
+                '<span class="date">' + formatDate(a.date) + '</span>' +
+                '<span class="reading-time">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
+                    readingMin + ' min read' +
+                '</span>' +
+            '</div>';
+
+        // Build body — use full content if available, otherwise description
+        if (a.content && a.content.trim().length > 0) {
+            articleBody.innerHTML = a.content;
+        } else {
+            articleBody.innerHTML = '<p>' + escapeHtml(a.description) + '</p>';
+        }
+
+        // Make all links in article body open in new tabs
+        var bodyLinks = articleBody.querySelectorAll('a');
+        for (var i = 0; i < bodyLinks.length; i++) {
+            bodyLinks[i].setAttribute('target', '_blank');
+            bodyLinks[i].setAttribute('rel', 'noopener');
+        }
+
+        // Source link
+        articleSourceLink.href = a.link;
+
+        // Show article view, hide feed
+        featuredSlot.hidden = true;
+        newsGrid.hidden = true;
+        noResults.hidden = true;
+        filterBar.hidden = true;
+        articleView.hidden = false;
+
+        // Push browser history state for back button
+        history.pushState({ article: index }, '', '#article-' + index);
+
+        // Reset progress bar and scroll to top
+        progressBar.style.width = '0%';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeArticle() {
+        articleView.hidden = true;
+        filterBar.hidden = false;
+        progressBar.style.width = '0%';
+        renderArticles();
+    }
+
+    backBtn.addEventListener('click', function () {
+        closeArticle();
+        // Only go back if we pushed a state
+        if (window.location.hash.startsWith('#article-')) {
+            history.back();
+        }
+    });
+
+    // --- Click handler for articles (event delegation) ---
+    document.querySelector('.container').addEventListener('click', function (e) {
+        // Find the closest card or featured article
+        var card = e.target.closest('.card, .featured');
+        if (!card || !articleView.hidden) return;
+
+        e.preventDefault();
+
+        // Find article index from the data attribute
+        var idx = card.dataset.index;
+        if (idx !== undefined) {
+            openArticle(parseInt(idx, 10));
+        }
+    });
+
     // --- Render ---
     function renderArticles() {
-        var filtered = articles.filter(function (a) {
+        var filtered = [];
+        // Build filtered list with original indices
+        for (var i = 0; i < articles.length; i++) {
+            var a = articles[i];
             var matchCat = activeCategory === 'all' || a.category === activeCategory;
             var matchSearch = !searchTerm || (a.title + ' ' + a.description).toLowerCase().includes(searchTerm);
-            return matchCat && matchSearch;
-        });
+            if (matchCat && matchSearch) {
+                filtered.push({ article: a, index: i });
+            }
+        }
 
         // Featured = first article
         if (filtered.length > 0) {
             var f = filtered[0];
+            var a = f.article;
             featuredSlot.innerHTML =
-                '<article class="featured" data-category="' + escapeHtml(f.category) + '">' +
-                    '<a href="' + escapeHtml(f.link) + '" target="_blank" rel="noopener" class="featured-image">' +
-                        '<img src="' + escapeHtml(getImage(f)) + '" alt="' + escapeHtml(f.title) + '" loading="eager"' +
-                        ' onerror="this.src=\'' + PLACEHOLDER_IMAGES[f.category] + '\'">' +
+                '<article class="featured" data-category="' + escapeHtml(a.category) + '" data-index="' + f.index + '">' +
+                    '<div class="featured-image">' +
+                        '<img src="' + escapeHtml(getImage(a)) + '" alt="' + escapeHtml(a.title) + '" loading="eager"' +
+                        ' onerror="this.src=\'' + PLACEHOLDER_IMAGES[a.category] + '\'">' +
                         '<span class="badge">Latest</span>' +
-                    '</a>' +
+                    '</div>' +
                     '<div class="featured-content">' +
-                        '<span class="tag">' + escapeHtml(CATEGORY_LABELS[f.category] || f.category) + '</span>' +
-                        '<h2><a href="' + escapeHtml(f.link) + '" target="_blank" rel="noopener">' + escapeHtml(f.title) + '</a></h2>' +
-                        '<p>' + escapeHtml(f.description) + '</p>' +
+                        '<span class="tag">' + escapeHtml(CATEGORY_LABELS[a.category] || a.category) + '</span>' +
+                        '<h2>' + escapeHtml(a.title) + '</h2>' +
+                        '<p>' + escapeHtml(a.description) + '</p>' +
                         '<div class="meta">' +
-                            (f.source ? '<span class="author">' + escapeHtml(f.source) + '</span>' : '') +
-                            '<span class="date">' + formatDate(f.date) + '</span>' +
+                            (a.source ? '<span class="author">' + escapeHtml(a.source) + '</span>' : '') +
+                            '<span class="date">' + formatDate(a.date) + '</span>' +
                         '</div>' +
                     '</div>' +
                 '</article>';
@@ -126,26 +251,28 @@
 
         // Grid = rest of articles
         var gridHtml = '';
-        for (var i = 1; i < filtered.length; i++) {
-            var a = filtered[i];
+        for (var j = 1; j < filtered.length; j++) {
+            var item = filtered[j];
+            var ar = item.article;
             gridHtml +=
-                '<article class="card" data-category="' + escapeHtml(a.category) + '">' +
-                    '<a href="' + escapeHtml(a.link) + '" target="_blank" rel="noopener" class="card-image">' +
-                        '<img src="' + escapeHtml(getImage(a)) + '" alt="' + escapeHtml(a.title) + '" loading="lazy"' +
-                        ' onerror="this.src=\'' + PLACEHOLDER_IMAGES[a.category] + '\'">' +
-                    '</a>' +
+                '<article class="card" data-category="' + escapeHtml(ar.category) + '" data-index="' + item.index + '">' +
+                    '<div class="card-image">' +
+                        '<img src="' + escapeHtml(getImage(ar)) + '" alt="' + escapeHtml(ar.title) + '" loading="lazy"' +
+                        ' onerror="this.src=\'' + PLACEHOLDER_IMAGES[ar.category] + '\'">' +
+                    '</div>' +
                     '<div class="card-content">' +
-                        '<span class="tag">' + escapeHtml(CATEGORY_LABELS[a.category] || a.category) + '</span>' +
-                        '<h3><a href="' + escapeHtml(a.link) + '" target="_blank" rel="noopener">' + escapeHtml(a.title) + '</a></h3>' +
-                        '<p>' + escapeHtml(a.description) + '</p>' +
+                        '<span class="tag">' + escapeHtml(CATEGORY_LABELS[ar.category] || ar.category) + '</span>' +
+                        '<h3>' + escapeHtml(ar.title) + '</h3>' +
+                        '<p>' + escapeHtml(ar.description) + '</p>' +
                         '<div class="meta">' +
-                            (a.source ? '<span class="author">' + escapeHtml(a.source) + '</span>' : '') +
-                            '<span class="date">' + formatDate(a.date) + '</span>' +
+                            (ar.source ? '<span class="author">' + escapeHtml(ar.source) + '</span>' : '') +
+                            '<span class="date">' + formatDate(ar.date) + '</span>' +
                         '</div>' +
                     '</div>' +
                 '</article>';
         }
         newsGrid.innerHTML = gridHtml;
+        newsGrid.hidden = false;
 
         noResults.hidden = filtered.length > 0;
     }
@@ -202,11 +329,22 @@
             e.preventDefault();
             searchInput.focus();
         }
-        if (e.key === 'Escape' && document.activeElement === searchInput) {
-            searchInput.blur();
-            searchInput.value = '';
-            searchTerm = '';
-            renderArticles();
+        if (e.key === 'Escape') {
+            if (!articleView.hidden) {
+                closeArticle();
+            } else if (document.activeElement === searchInput) {
+                searchInput.blur();
+                searchInput.value = '';
+                searchTerm = '';
+                renderArticles();
+            }
+        }
+    });
+
+    // --- Browser back button support ---
+    window.addEventListener('popstate', function () {
+        if (!articleView.hidden) {
+            closeArticle();
         }
     });
 
