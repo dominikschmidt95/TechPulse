@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="de" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechPulse // Modern Tech News</title>
-    <meta name="description" content="TechPulse - Your daily dose of cutting-edge tech news, AI breakthroughs, cybersecurity updates, and developer insights.">
+    <title>TechPulse // Aktuelle Tech-News</title>
+    <meta name="description" content="TechPulse - Deine tägliche Dosis an Tech-News, KI-Durchbrüchen, Cybersecurity-Updates und Entwickler-Einblicken.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
         </a>
         <nav class="header-nav">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search articles..." autocomplete="off">
+                <input type="text" id="searchInput" placeholder="Artikel suchen..." autocomplete="off">
                 <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             </div>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -33,15 +33,15 @@
             </button>
         </nav>
     </div>
-    <p class="tagline">Your daily pulse on <span class="neon">innovation</span> & <span class="neon">technology</span></p>
+    <p class="tagline">Dein täglicher Puls für <span class="neon">Innovation</span> & <span class="neon">Technologie</span></p>
 </header>
 
 <!-- Category Filter -->
 <section class="filter-bar">
     <div class="filter-inner">
-        <button class="filter-btn active" data-category="all">All</button>
-        <button class="filter-btn" data-category="ai">AI & ML</button>
-        <button class="filter-btn" data-category="security">Security</button>
+        <button class="filter-btn active" data-category="all">Alle</button>
+        <button class="filter-btn" data-category="ai">KI & ML</button>
+        <button class="filter-btn" data-category="security">Sicherheit</button>
         <button class="filter-btn" data-category="webdev">Web Dev</button>
         <button class="filter-btn" data-category="hardware">Hardware</button>
         <button class="filter-btn" data-category="startups">Startups</button>
@@ -54,7 +54,7 @@
     <!-- Loading State -->
     <div class="loading" id="loading">
         <div class="loading-spinner"></div>
-        <p>Fetching latest tech news...</p>
+        <p>Aktuelle Tech-News werden geladen...</p>
     </div>
 
     <!-- Featured Article (dynamically rendered) -->
@@ -66,21 +66,21 @@
     <!-- No Results Message -->
     <div class="no-results" id="noResults" hidden>
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M8 11h6"/></svg>
-        <h3>No articles found</h3>
-        <p>Try a different search term or category.</p>
+        <h3>Keine Artikel gefunden</h3>
+        <p>Versuche einen anderen Suchbegriff oder eine andere Kategorie.</p>
     </div>
 
     <!-- Article Detail View (hidden by default) -->
     <article class="article-view" id="articleView" hidden>
         <button class="back-btn" id="backBtn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-            Back to feed
+            Zurück zum Feed
         </button>
         <div class="article-header" id="articleHeader"></div>
         <div class="article-body" id="articleBody"></div>
         <div class="article-footer">
             <a id="articleSourceLink" href="#" target="_blank" rel="noopener" class="source-link">
-                Read original article
+                Originalartikel lesen
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
         </div>
@@ -92,18 +92,18 @@
 <section class="subscribe-section">
     <div class="subscribe-inner">
         <div class="subscribe-text">
-            <h2>Stay in the <span class="neon">loop</span></h2>
-            <p>Get the top tech stories delivered to your inbox every morning. No spam, unsubscribe anytime.</p>
+            <h2>Bleib auf dem <span class="neon">Laufenden</span></h2>
+            <p>Die wichtigsten Tech-News jeden Morgen in deinem Postfach. Kein Spam, jederzeit abbestellbar.</p>
         </div>
         <form class="subscribe-form" id="subscribeForm">
             <div class="input-group">
                 <input type="email" id="emailInput" placeholder="your@email.com" required autocomplete="email">
                 <button type="submit" class="subscribe-btn">
-                    <span class="btn-text">Subscribe</span>
-                    <span class="btn-success" hidden>Subscribed!</span>
+                    <span class="btn-text">Abonnieren</span>
+                    <span class="btn-success" hidden>Abonniert!</span>
                 </button>
             </div>
-            <p class="form-note">Join 12,000+ tech enthusiasts</p>
+            <p class="form-note">Schließe dich 12.000+ Tech-Begeisterten an</p>
         </form>
     </div>
 </section>
@@ -116,12 +116,12 @@
             <span>Tech<span class="neon">Pulse</span></span>
         </a>
         <div class="footer-links">
-            <a href="#">About</a>
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Contact</a>
+            <a href="#">Über uns</a>
+            <a href="#">Datenschutz</a>
+            <a href="#">Impressum</a>
+            <a href="#">Kontakt</a>
         </div>
-        <p class="copyright">&copy; 2026 TechPulse. All rights reserved.</p>
+        <p class="copyright">&copy; 2026 TechPulse. Alle Rechte vorbehalten.</p>
     </div>
 </footer>
 

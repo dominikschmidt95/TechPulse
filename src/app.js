@@ -72,8 +72,8 @@
     };
 
     var CATEGORY_LABELS = {
-        ai: 'AI & ML',
-        security: 'Security',
+        ai: 'KI & ML',
+        security: 'Sicherheit',
         webdev: 'Web Dev',
         hardware: 'Hardware',
         startups: 'Startups',
@@ -86,7 +86,7 @@
     function formatDate(dateStr) {
         try {
             var d = new Date(dateStr);
-            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' });
         } catch (e) {
             return '';
         }
@@ -142,7 +142,7 @@
             if (newMin > readingMin) {
                 timeEl.innerHTML =
                     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
-                    newMin + ' min read';
+                    newMin + ' Min. Lesezeit';
             }
         }
     }
@@ -167,7 +167,7 @@
                 '<span class="date">' + formatDate(a.date) + '</span>' +
                 '<span class="reading-time">' +
                     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
-                    readingMin + ' min read' +
+                    readingMin + ' Min. Lesezeit' +
                 '</span>' +
             '</div>';
 
@@ -175,7 +175,7 @@
         articleBody.innerHTML =
             '<div class="article-loading">' +
                 '<div class="loading-spinner"></div>' +
-                '<p>Loading full article...</p>' +
+                '<p>Vollständiger Artikel wird geladen...</p>' +
             '</div>';
 
         // Source link
@@ -273,7 +273,7 @@
                     '<div class="featured-image">' +
                         '<img src="' + escapeHtml(getImage(a)) + '" alt="' + escapeHtml(a.title) + '" loading="eager"' +
                         ' onerror="this.src=\'' + PLACEHOLDER_IMAGES[a.category] + '\'">' +
-                        '<span class="badge">Latest</span>' +
+                        '<span class="badge">Aktuell</span>' +
                     '</div>' +
                     '<div class="featured-content">' +
                         '<span class="tag">' + escapeHtml(CATEGORY_LABELS[a.category] || a.category) + '</span>' +

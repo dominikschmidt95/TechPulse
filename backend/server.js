@@ -14,22 +14,22 @@ app.use(cors());
 
 // --- RSS Feed Sources ---
 const FEEDS = [
-    { url: 'https://feeds.arstechnica.com/arstechnica/technology-lab', category: 'hardware' },
-    { url: 'https://www.theverge.com/rss/index.xml', category: 'hardware' },
-    { url: 'https://techcrunch.com/feed/', category: 'startups' },
-    { url: 'https://feeds.feedburner.com/TheHackersNews', category: 'security' },
-    { url: 'https://www.wired.com/feed/tag/ai/latest/rss', category: 'ai' },
-    { url: 'https://dev.to/feed', category: 'webdev' },
-    { url: 'https://hnrss.org/frontpage', category: 'webdev' },
+    { url: 'https://www.heise.de/rss/heise-atom.xml', category: 'hardware' },
+    { url: 'https://www.golem.de/rss.php?feed=RSS2.0', category: 'hardware' },
+    { url: 'https://www.chip.de/rss/rss_topnews.xml', category: 'hardware' },
+    { url: 'https://t3n.de/rss.xml', category: 'startups' },
+    { url: 'https://www.computerbase.de/rss/news.xml', category: 'hardware' },
+    { url: 'https://winfuture.de/rss/', category: 'hardware' },
+    { url: 'https://www.stadt-bremerhaven.de/feed/', category: 'hardware' },
 ];
 
 // --- Category keywords for auto-detection ---
 const CATEGORY_KEYWORDS = {
-    ai: ['ai', 'artificial intelligence', 'machine learning', 'llm', 'gpt', 'neural', 'deep learning', 'chatbot', 'openai', 'anthropic', 'gemini', 'copilot'],
-    security: ['security', 'hack', 'breach', 'vulnerability', 'malware', 'ransomware', 'cyber', 'phishing', 'encryption', 'passkey', 'zero-day', 'privacy'],
-    webdev: ['javascript', 'typescript', 'react', 'vue', 'angular', 'node', 'css', 'html', 'web dev', 'frontend', 'backend', 'api', 'framework', 'rust', 'go ', 'python', 'developer'],
-    hardware: ['chip', 'processor', 'quantum', 'gpu', 'cpu', 'apple', 'samsung', 'nvidia', 'amd', 'intel', 'hardware', 'device', 'phone', 'laptop', 'robot'],
-    startups: ['startup', 'funding', 'venture', 'vc', 'acquisition', 'ipo', 'valuation', 'series a', 'seed round', 'unicorn'],
+    ai: ['ai', 'künstliche intelligenz', 'ki', 'machine learning', 'maschinelles lernen', 'llm', 'gpt', 'neural', 'deep learning', 'chatbot', 'openai', 'anthropic', 'gemini', 'copilot', 'sprachmodell'],
+    security: ['security', 'sicherheit', 'hack', 'breach', 'sicherheitslücke', 'schwachstelle', 'malware', 'ransomware', 'cyber', 'phishing', 'verschlüsselung', 'passkey', 'zero-day', 'datenschutz', 'privacy', 'angriff'],
+    webdev: ['javascript', 'typescript', 'react', 'vue', 'angular', 'node', 'css', 'html', 'web dev', 'frontend', 'backend', 'api', 'framework', 'rust', 'go ', 'python', 'entwickler', 'developer', 'programmier'],
+    hardware: ['chip', 'prozessor', 'processor', 'quantum', 'gpu', 'cpu', 'apple', 'samsung', 'nvidia', 'amd', 'intel', 'hardware', 'gerät', 'device', 'smartphone', 'handy', 'laptop', 'roboter', 'grafikkarte'],
+    startups: ['startup', 'gründer', 'finanzierung', 'funding', 'venture', 'übernahme', 'acquisition', 'börsengang', 'ipo', 'bewertung', 'unicorn', 'investition'],
 };
 
 // --- Cache ---

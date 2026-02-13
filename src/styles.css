@@ -123,6 +123,11 @@ img {
     gap: 0.5rem;
     text-decoration: none;
     color: inherit;
+    transition: filter 0.3s ease;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 12px var(--accent));
 }
 
 .logo-icon {
@@ -620,6 +625,11 @@ img {
     font-weight: 700;
     text-decoration: none;
     color: inherit;
+    transition: filter 0.3s ease;
+}
+
+.footer-brand:hover {
+    filter: drop-shadow(0 0 12px var(--accent));
 }
 
 .footer-links {
